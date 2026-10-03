@@ -21,19 +21,20 @@ p.q{color:#5f6d75;font-size:11.5px;}
 .btn{margin-top:24px;padding:13px 40px;font-size:13px;letter-spacing:4px;color:#9fd8d8;
 border:1px solid #38505c;background:rgba(18,30,38,.8);border-radius:2px;cursor:pointer;}
 .btn:active{background:rgba(34,56,68,.95);}
-#cutImg{display:none;max-width:min(86vw,430px);max-height:34vh;margin:0 0 22px;
+#cutImg{display:none;max-width:min(52vw,430px);max-height:38vh;margin:0 0 18px;
 border:1px solid #22333b;border-radius:2px;}
-#hud{position:absolute;top:0;left:0;right:0;padding:14px 18px;display:flex;
+#hud{position:absolute;top:0;left:0;right:0;padding:12px 18px;display:flex;
 justify-content:space-between;font-size:11.5px;letter-spacing:2px;color:#7d8d95;z-index:10;
 pointer-events:none;text-shadow:0 0 10px #000;}
-#toast{position:absolute;left:0;right:0;bottom:16%;text-align:center;font-size:14px;
+#toast{position:absolute;left:0;right:0;bottom:14%;text-align:center;font-size:14px;
 letter-spacing:2px;color:#cfd8dc;text-shadow:0 0 12px #000,0 0 34px #000;z-index:10;
 pointer-events:none;opacity:0;transition:opacity .55s;}
 #toast.on{opacity:1;}
 #flash{position:absolute;inset:0;background:#000;z-index:15;pointer-events:none;
 opacity:0;transition:opacity .55s;}
-#ver{position:absolute;left:14px;bottom:10px;font-size:10px;letter-spacing:2px;
+#ver{position:absolute;left:14px;bottom:8px;font-size:10px;letter-spacing:2px;
 color:#2f4149;z-index:11;pointer-events:none;}
+#sCut p{max-width:min(62vw,620px);}
 </style>
 </head>
 <body>
@@ -41,13 +42,13 @@ color:#2f4149;z-index:11;pointer-events:none;}
 <div id="hud"><span id="hudL"></span><span id="hudR"></span></div>
 <div id="toast"></div>
 <div id="flash"></div>
-<div id="ver">v2</div>
+<div id="ver">v3</div>
 
 <div class="screen on" id="sTitle">
 <h1>黑森林</h1>
 <h2>DON'T LOOK BACK</h2>
 <p>传说这片林子里住着吃人的东西。<br>你和朋友还是来了 —— 露营、采蘑菇、捡柴。</p>
-<p class="q">手机：按住屏幕任意处拖动<br>电脑：WASD 或方向键</p>
+<p class="q">手机：按住屏幕任意处拖动　·　电脑：WASD 或方向键<br>建议横屏</p>
 <div class="btn" id="bStart">进 林 子</div>
 </div>
 
@@ -60,11 +61,11 @@ color:#2f4149;z-index:11;pointer-events:none;}
 
 <div class="screen" id="sEnd">
 <h1 id="endT" style="font-size:20px;letter-spacing:7px;"></h1>
-<img id="endImg" alt="" style="display:none;max-width:min(86vw,430px);max-height:34vh;margin:0 0 22px;border:1px solid #22333b;border-radius:2px;">
+<img id="endImg" alt="" style="display:none;max-width:min(52vw,430px);max-height:34vh;margin:0 0 20px;border:1px solid #22333b;border-radius:2px;">
 <p id="endB"></p>
 <div class="btn" id="bAgain">再 来 一 次</div>
 </div>
 
-<script src="game.js?v=3"></script>
+<script src="game.js?v=4"></script>
 </body>
 </html>
