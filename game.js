@@ -1,22 +1,19 @@
 "use strict";
-
-/* ================= 素材 ================= */
 var A = {
-  kang:   'https://i.postimg.cc/wTwB3Mft/retouch-2026100317292114.png',
-  mate:   'https://i.postimg.cc/05pngRt4/retouch-2026100317423607.png',
-  camp:   'https://i.postimg.cc/BQnSWsSx/mmexport1791019923449.jpg',
-  mark:   'https://i.postimg.cc/Y0qHwfwd/mmexport1791019926001.jpg',
-  tire:   'https://i.postimg.cc/LsKFsMpv/mmexport1791019928315.jpg',
-  props:  'https://i.postimg.cc/x8dWZfvT/mmexport1791019930573.jpg',
-  mons:   'https://i.postimg.cc/SN3wZpjv/mmexport1791019936998.jpg',
-  body:   'https://i.postimg.cc/4yMFFz40/mmexport1791020081267.jpg',
-  day:    'https://i.postimg.cc/PrYHZx5b/mmexport1791016938307.jpg',
-  night:  'https://i.postimg.cc/T15kzp42/mmexport1791017296540.jpg'
+  kang:  'https://i.postimg.cc/wTwB3Mft/retouch-2026100317292114.png',
+  mate:  'https://i.postimg.cc/05pngRt4/retouch-2026100317423607.png',
+  camp:  'https://i.postimg.cc/BQnSWsSx/mmexport1791019923449.jpg',
+  mark:  'https://i.postimg.cc/Y0qHwfwd/mmexport1791019926001.jpg',
+  tire:  'https://i.postimg.cc/LsKFsMpv/mmexport1791019928315.jpg',
+  props: 'https://i.postimg.cc/x8dWZfvT/mmexport1791019930573.jpg',
+  mons:  'https://i.postimg.cc/SN3wZpjv/mmexport1791019936998.jpg',
+  body:  'https://i.postimg.cc/4yMFFz40/mmexport1791020081267.jpg',
+  day:   'https://i.postimg.cc/PrYHZx5b/mmexport1791016938307.jpg',
+  night: 'https://i.postimg.cc/T15kzp42/mmexport1791017296540.jpg'
 };
 var IMG = {};
 for (var k in A) { var _i = new Image(); _i.src = A[k]; IMG[k] = _i; }
 
-/* ================= 画布 ================= */
 var cv = document.getElementById('c');
 var ctx = cv.getContext('2d');
 var W = 0, H = 0, DPR = 1;
@@ -28,25 +25,37 @@ function resize() {
   checkRotate();
 }
 window.addEventListener('resize', resize);
-window.addEventListener('orientationchange', function () { setTimeout(resize, 120); });
+window.addEventListener('orientationchange', function () { manualOff = false; setTimeout(resize, 160); });
 
-/* ============ 横屏提示 ============ */
-var rotEl = null;
+/* ---- 横屏提示（带手动关闭） ---- */
+var rotEl = null, rotBtn = null, manualOff = false;
+function isPortrait() {
+  try { if (window.matchMedia) return window.matchMedia('(orientation: portrait)').matches; } catch (e) {}
+  return window.innerHeight > window.innerWidth * 1.05;
+}
 function buildRotate() {
   var st = document.createElement('style');
   st.textContent = '#rot{position:fixed;inset:0;z-index:40;background:#05070a;display:none;' +
     'flex-direction:column;align-items:center;justify-content:center;text-align:center;' +
-    'color:#7d8d95;font-size:15px;letter-spacing:4px;line-height:2.2;}' +
-    '#rot.on{display:flex;} #rot span{font-size:11px;color:#44555d;letter-spacing:2px;}';
+    'color:#7d8d95;font-size:15px;letter-spacing:4px;line-height:2.4;}' +
+    '#rot.on{display:flex;}' +
+    '#rot span{font-size:11px;color:#44555d;letter-spacing:2px;}' +
+    '#rot .rb{margin-top:34px;padding:12px 30px;font-size:12px;letter-spacing:3px;' +
+    'color:#9fd8d8;border:1px solid #38505c;border-radius:2px;cursor:pointer;}';
   document.head.appendChild(st);
   rotEl = document.createElement('div');
   rotEl.id = 'rot';
-  rotEl.innerHTML = '<div>把 手 机 横 过 来</div><span>横屏才看得清林子</span>';
+  rotEl.innerHTML = '<div>把 手 机 横 过 来</div><span>横屏才看得清林子</span>' +
+    '<div class="rb" id="rotBtn">我 已 经 横 过 来 了</div>';
   document.body.appendChild(rotEl);
+  rotBtn = document.getElementById('rotBtn');
+  rotBtn.onclick = function () { manualOff = true; rotEl.classList.remove('on'); setTimeout(resize, 80); };
 }
 function checkRotate() {
   if (!rotEl) return;
-  if (H > W * 1.05) rotEl.classList.add('on'); else rotEl.classList.remove('on');
+  var p = isPortrait() && !manualOff;
+  if (H <= W) p = false;
+  if (p) rotEl.classList.add('on'); else rotEl.classList.remove('on');
 }
 function lockLandscape() {
   try {
@@ -56,20 +65,17 @@ function lockLandscape() {
   } catch (e) {}
   setTimeout(function () {
     try { if (screen.orientation && screen.orientation.lock) { var q = screen.orientation.lock('landscape'); if (q && q.catch) q.catch(function () {}); } } catch (e) {}
-    setTimeout(resize, 300);
+    setTimeout(resize, 320);
   }, 320);
 }
 
-/* ================== 世界（缩小版） ================== */
 var WORLD = { w: 1700, h: 1250 };
 function rng(s0) { var s = s0 >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 var R = rng(20261003);
-
-var camp  = { x: 330, y: 1010 };
-var carM  = { x: 300, y: 1110, r: 62 };
-var spot  = { x: 1380, y: 330, r: 46 };
+var camp = { x: 330, y: 1010 };
+var carM = { x: 300, y: 1110, r: 62 };
+var spot = { x: 1380, y: 330, r: 46 };
 var exitM = { x: 1580, y: 120, r: 82 };
-
 function dist2(x1, y1, x2, y2) { var a = x1 - x2, b = y1 - y2; return a * a + b * b; }
 var PATH = [[560,820],[760,640],[860,900],[1010,470],[1080,780],[620,1000],[1180,1010]];
 function clearOf(x, y, d) {
@@ -99,12 +105,10 @@ function hitTree(x, y, r) {
   return null;
 }
 
-/* ================== 实体 ================== */
 var player = { x: 400, y: 1000, r: 12, sp: 220, face: 1 };
 var friend = { x: 340, y: 1040, r: 12, face: 1 };
-var mons   = { x: 0, y: 0, r: 30, sp: 214, on: false };
+var mons = { x: 0, y: 0, r: 30, sp: 214, on: false };
 var cam = { x: 0, y: 0 };
-
 var PT = [[560,820,'m'],[760,640,'m'],[1080,780,'m'],[620,1000,'w'],[862,900,'w'],[1010,470,'w']];
 var picks = [];
 function makePicks() {
@@ -112,10 +116,9 @@ function makePicks() {
   for (var i = 0; i < PT.length; i++) picks.push({ x: PT[i][0], y: PT[i][1], t: PT[i][2], got: false, ph: R() * 6.28 });
 }
 makePicks();
-var have = { m: 0, w: 0 }, NEED = { m: 3, w: 3 };
+var have = { m: 0, w: 0 };
 var phase = 'title', started = false, shake = 0, T = 0, chaseT = 0, dark = 0, stepT = 0;
 
-/* ================== UI ================== */
 var toastEl = document.getElementById('toast'), toastT = 0;
 function toast(t, ms) { toastEl.textContent = t; toastEl.classList.add('on'); toastT = (ms || 2200) / 1000; }
 function tickToast(dt) { if (toastT > 0) { toastT -= dt; if (toastT <= 0) toastEl.classList.remove('on'); } }
@@ -141,7 +144,6 @@ function endGame(title, body, imgSrc) {
   sEnd.classList.add('on');
 }
 
-/* ================== 声音 ================== */
 var AC = null, windGain = null, noBuf = null;
 function noiseBuf() {
   if (noBuf || !AC) return noBuf;
@@ -200,14 +202,12 @@ function tone(f1, f2, gain, dur, type) {
 function howl() { tone(310, 108, 0.14, 1.9, 'sawtooth'); setTimeout(function () { tone(230, 92, 0.11, 1.7, 'triangle'); }, 120); }
 function heartbeat() { tone(64, 52, 0.26, 0.3, 'sine'); }
 
-/* ================== 输入 ================== */
 var keys = {};
 window.addEventListener('keydown', function (e) {
   keys[e.key.toLowerCase()] = true;
   if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) >= 0) e.preventDefault();
 });
 window.addEventListener('keyup', function (e) { keys[e.key.toLowerCase()] = false; });
-
 var stick = { on: false, id: null, ox: 0, oy: 0, x: 0, y: 0 };
 function tp(t) { var r = cv.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; }
 cv.addEventListener('touchstart', function (e) {
@@ -247,7 +247,6 @@ function inputVec() {
   return { x: 0, y: 0 };
 }
 
-/* ================== 流程 ================== */
 function reset() {
   player.x = 400; player.y = 1000; player.face = 1;
   friend.x = 340; friend.y = 1040; friend.face = 1;
@@ -257,7 +256,8 @@ function reset() {
 document.getElementById('bStart').onclick = function () {
   sTitle.classList.remove('on'); initAudio();
   if (AC && AC.state === 'suspended') { try { AC.resume(); } catch (e) {} }
-  lockLandscape(); started = true; reset(); toast('先采三朵蘑菇，再捡三根柴', 3400);
+  lockLandscape(); manualOff = false; started = true; reset();
+  toast('先采三朵蘑菇，再捡三根柴', 3400);
 };
 document.getElementById('bAgain').onclick = function () {
   sEnd.classList.remove('on'); if (!AC) initAudio(); started = true; reset();
@@ -278,7 +278,6 @@ function objective() {
   return null;
 }
 
-/* ================== 更新 ================== */
 function moveEnt(e, vx, vy, dt) {
   var nx = e.x + vx * dt, ny = e.y + vy * dt;
   var b = hitTree(nx, e.y, e.r);
@@ -288,9 +287,10 @@ function moveEnt(e, vx, vy, dt) {
   e.x = Math.max(16, Math.min(WORLD.w - 16, nx));
   e.y = Math.max(16, Math.min(WORLD.h - 16, ny));
 }
-var howlT = 0, hbT = 0;
+var howlT = 0, hbT = 0, rotTick = 0;
 function update(dt) {
   T += dt;
+  rotTick -= dt; if (rotTick <= 0) { rotTick = 0.6; checkRotate(); }
   if (shake > 0) shake = Math.max(0, shake - dt * 2.2);
   var iv = inputVec(), moving = (iv.x || iv.y) ? 1 : 0;
   if (phase === 'day' || phase === 'morning' || phase === 'chase') {
@@ -352,7 +352,6 @@ function update(dt) {
   document.getElementById('hudR').textContent = Rt;
 }
 
-/* ================== 剧情 ================== */
 var TXT_NIGHT = '柴火够烧了。<br><br>天说黑就黑。林子里先是静下来 —— 静得连虫子都没有。<br><br>' +
   '然后是叫声。<br>不像狼，不像人。像很远的地方有人用很低的声音哭。<br><br>' +
   '你和朋友挤在帐篷里，谁也没敢掀帘子。<br>他抓着你的胳膊，说没事，说天亮了就走。<br><br>' +
@@ -406,7 +405,6 @@ function winGame() {
   setTimeout(function () { endGame('你 跑 出 来 了', TXT_WIN, A.camp); }, 900);
 }
 
-/* ================== 绘制 ================== */
 function cover(im) {
   if (!im || !im.complete || !im.naturalWidth) return false;
   var s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * 1.02;
@@ -472,7 +470,7 @@ function drawMons() {
   ctx.restore();
 }
 function drawMini() {
-  var mw = Math.min(128, W * 0.24), mh = mw * (WORLD.h / WORLD.w);
+  var mw = Math.min(128, W * 0.22), mh = mw * (WORLD.h / WORLD.w);
   var px = W - mw - 14, py = 44;
   ctx.save();
   ctx.globalAlpha = 0.72; ctx.fillStyle = '#05090b'; ctx.fillRect(px, py, mw, mh);
@@ -588,12 +586,12 @@ function drawWorld() {
   }
 }
 
-/* ================== 主循环 ================== */
 var last = 0;
 function loop(ts) {
   if (!last) last = ts;
   var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
-  if (started && phase !== 'end') update(dt); else { T += dt; tickToast(dt); }
+  if (started && phase !== 'end') update(dt);
+  else { T += dt; rotTick -= dt; if (rotTick <= 0) { rotTick = 0.6; checkRotate(); } tickToast(dt); }
   if (phase === 'title' || phase === 'end') {
     cam.x = Math.max(0, Math.min(WORLD.w - W, player.x - W / 2));
     cam.y = Math.max(0, Math.min(WORLD.h - H, player.y - H / 2));
