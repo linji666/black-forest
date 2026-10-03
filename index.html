@@ -32,6 +32,8 @@ pointer-events:none;opacity:0;transition:opacity .55s;}
 #toast.on{opacity:1;}
 #flash{position:absolute;inset:0;background:#000;z-index:15;pointer-events:none;
 opacity:0;transition:opacity .55s;}
+#ver{position:absolute;left:14px;bottom:10px;font-size:10px;letter-spacing:2px;
+color:#2f4149;z-index:11;pointer-events:none;}
 </style>
 </head>
 <body>
@@ -39,6 +41,7 @@ opacity:0;transition:opacity .55s;}
 <div id="hud"><span id="hudL"></span><span id="hudR"></span></div>
 <div id="toast"></div>
 <div id="flash"></div>
+<div id="ver">v2</div>
 
 <div class="screen on" id="sTitle">
 <h1>黑森林</h1>
@@ -62,6 +65,6 @@ opacity:0;transition:opacity .55s;}
 <div class="btn" id="bAgain">再 来 一 次</div>
 </div>
 
-<script src="game.js"></script>
+<script src="game.js?v=3"></script>
 </body>
 </html>
