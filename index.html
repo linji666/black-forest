@@ -8,7 +8,7 @@
 <title>黑森林</title>
 <style>
 html,body{margin:0;padding:0;height:100%;overflow:hidden;background:#05070a;
-font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;
 color:#dfe7ea;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;}
 canvas{display:block;position:absolute;inset:0;width:100%;height:100%;}
 .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;
@@ -61,18 +61,18 @@ opacity:0;transition:opacity .55s;}
 <script>
 "use strict";
 
-/* ===================== 素材 ===================== */
+/* ===== 素材 ===== */
 var SRC = {
-  day:   "https://i.postimg.cc/PrYHZx5b/mmexport1791016938307.jpg",
-  night: "https://i.postimg.cc/T15kzp42/mmexport1791017296540.jpg",
-  mimic: "https://i.postimg.cc/59Hb4pcY/mmexport1791017177409.jpg"
+  day:   'https://i.postimg.cc/PrYHZx5b/mmexport1791016938307.jpg',
+  night: 'https://i.postimg.cc/T15kzp42/mmexport1791017296540.jpg',
+  mimic: 'https://i.postimg.cc/59Hb4pcY/mmexport1791017177409.jpg'
 };
 var IMG = {};
-for (var k in SRC) { var im = new Image(); im.src = SRC[k]; IMG[k] = im; }
+for (var k in SRC) { var _im = new Image(); _im.src = SRC[k]; IMG[k] = _im; }
 
-/* ===================== 画布 ===================== */
-var cv = document.getElementById("c");
-var ctx = cv.getContext("2d");
+/* ===== 画布 ===== */
+var cv = document.getElementById('c');
+var ctx = cv.getContext('2d');
 var W = 0, H = 0, DPR = 1;
 function resize() {
   DPR = Math.min(window.devicePixelRatio || 1, 2);
@@ -80,23 +80,19 @@ function resize() {
   cv.width = Math.floor(W * DPR); cv.height = Math.floor(H * DPR);
   ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
 }
-window.addEventListener("resize", resize);
+window.addEventListener('resize', resize);
 resize();
 
-/* ===================== 世界 ===================== */
+/* ===== 世界 ===== */
 var WORLD = { w: 2600, h: 1900 };
-
 function rng(seed) { var s = seed >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
-
 var R = rng(20261003);
 var trees = [];
-(function () {
-  for (var i = 0; i < 150; i++) {
-    var x = R() * WORLD.w, y = R() * WORLD.h;
-    if (x < 780 && y > 1150) continue;
-    trees.push({ x: x, y: y, r: 20 + R() * 20, s: 0.85 + R() * 0.5 });
-  }
-})();
+for (var ti = 0; ti < 150; ti++) {
+  var tx = R() * WORLD.w, ty = R() * WORLD.h;
+  if (tx < 820 && ty > 1120) continue;
+  trees.push({ x: tx, y: ty, r: 20 + R() * 20 });
+}
 function blocked(x, y, r) {
   for (var i = 0; i < trees.length; i++) {
     var t = trees[i], dx = x - t.x, dy = y - t.y, rr = t.r + r;
@@ -107,73 +103,73 @@ function blocked(x, y, r) {
 
 var player = { x: 540, y: 1520, r: 13, sp: 218, face: 1 };
 var friend = { x: 470, y: 1560, r: 13, face: 1 };
-var mimic = { x: 0, y: 0, r: 26, sp: 206, on: false };
+var mimic  = { x: 0, y: 0, r: 26, sp: 206, on: false };
 var cam = { x: 0, y: 0 };
 
-var spot  = { x: 2060, y: 420, r: 46 };   /* 昨晚发出声音的地方 */
-var car   = { x: 660,  y: 1640, r: 70 };  /* 车 */
-var exitM = { x: 2440, y: 150,  r: 90 };  /* 林子的路 */
+var spot  = { x: 2060, y: 420, r: 46 };
+var car   = { x: 660,  y: 1640, r: 70 };
+var exitM = { x: 2440, y: 150,  r: 90 };
 
 var picks = [];
 function makePicks() {
   picks = [];
-  var pts = [
-    [980, 1180, "m"], [1420, 900, "m"], [1180, 1560, "m"],
-    [820, 980, "w"], [1620, 1420, "w"], [1900, 1080, "w"]
-  ];
+  var pts = [[980,1180,'m'],[1420,900,'m'],[1180,1560,'m'],[820,980,'w'],[1620,1420,'w'],[1900,1080,'w']];
   for (var i = 0; i < pts.length; i++) picks.push({ x: pts[i][0], y: pts[i][1], t: pts[i][2], got: false, ph: R() * 6.28 });
 }
 makePicks();
 
 var have = { m: 0, w: 0 };
 var NEED = { m: 3, w: 3 };
-var phase = "title";
+var phase = 'title';
 var shake = 0, timeAll = 0, chaseT = 0, dark = 0, started = false;
 
-/* ===================== 提示 ===================== */
-var toastEl = document.getElementById("toast");
+/* ===== 提示 ===== */
+var toastEl = document.getElementById('toast');
 var toastTimer = 0;
-function toast(t, ms) { toastEl.textContent = t; toastEl.classList.add("on"); toastTimer = (ms || 2200) / 1000; }
-function tickToast(dt) { if (toastTimer > 0) { toastTimer -= dt; if (toastTimer <= 0) toastEl.classList.remove("on"); } }
+function toast(t, ms) { toastEl.textContent = t; toastEl.classList.add('on'); toastTimer = (ms || 2200) / 1000; }
+function tickToast(dt) { if (toastTimer > 0) { toastTimer -= dt; if (toastTimer <= 0) toastEl.classList.remove('on'); } }
 
-var flashEl = document.getElementById("flash");
+var flashEl = document.getElementById('flash');
 function flash(a, ms) {
-  flashEl.style.transition = "none"; flashEl.style.opacity = a;
-  setTimeout(function () { flashEl.style.transition = "opacity " + (ms || 600) + "ms"; flashEl.style.opacity = 0; }, 30);
+  flashEl.style.transition = 'none'; flashEl.style.opacity = a;
+  setTimeout(function () { flashEl.style.transition = 'opacity ' + (ms || 600) + 'ms'; flashEl.style.opacity = 0; }, 30);
 }
 
-/* ===================== 剧情 ===================== */
-var sCut = document.getElementById("sCut"), cutT = document.getElementById("cutT"), cutB = document.getElementById("cutB");
-var sEnd = document.getElementById("sEnd"), endT = document.getElementById("endT"), endB = document.getElementById("endB");
-var sTitle = document.getElementById("sTitle");
+/* ===== 剧情 ===== */
+var sCut = document.getElementById('sCut');
+var cutT = document.getElementById('cutT');
+var cutB = document.getElementById('cutB');
+var sEnd = document.getElementById('sEnd');
+var endT = document.getElementById('endT');
+var endB = document.getElementById('endB');
+var sTitle = document.getElementById('sTitle');
 var cutDone = null;
 function showCut(title, body, btn, cb) {
   cutT.textContent = title; cutB.innerHTML = body;
-  document.getElementById("bCut").textContent = btn;
-  cutDone = cb; sCut.classList.add("on");
+  document.getElementById('bCut').textContent = btn;
+  cutDone = cb; sCut.classList.add('on');
 }
-document.getElementById("bCut").onclick = function () {
-  sCut.classList.remove("on");
+document.getElementById('bCut').onclick = function () {
+  sCut.classList.remove('on');
   var f = cutDone; cutDone = null; if (f) f();
 };
-
 function endGame(title, body) {
-  phase = "end"; mimic.on = false;
+  phase = 'end'; mimic.on = false;
   endT.textContent = title; endB.innerHTML = body;
-  sEnd.classList.add("on");
+  sEnd.classList.add('on');
 }
 
-/* ===================== 声音（纯代码，没有音频文件） ===================== */
-var AC = null, ambient = null, gainN = null;
+/* ===== 声音（纯代码，没有音频文件） ===== */
+var AC = null, gainN = null;
 function initAudio() {
   if (AC) return;
   try {
     var C = window.AudioContext || window.webkitAudioContext; if (!C) return;
     AC = new C();
     var o = AC.createOscillator(), g = AC.createGain();
-    o.type = "sine"; o.frequency.value = 46;
-    g.gain.value = 0.0; o.connect(g); g.connect(AC.destination); o.start();
-    ambient = o; gainN = g; g.gain.linearRampToValueAtTime(0.05, AC.currentTime + 3);
+    o.type = 'sine'; o.frequency.value = 44;
+    g.gain.value = 0.001; o.connect(g); g.connect(AC.destination); o.start();
+    gainN = g; g.gain.linearRampToValueAtTime(0.05, AC.currentTime + 3);
   } catch (e) { AC = null; }
 }
 function howl() {
@@ -182,11 +178,11 @@ function howl() {
     var t = AC.currentTime;
     for (var i = 0; i < 2; i++) {
       var o = AC.createOscillator(), g = AC.createGain();
-      o.type = i ? "triangle" : "sawtooth";
+      o.type = i ? 'triangle' : 'sawtooth';
       o.frequency.setValueAtTime(300 + i * 90, t);
       o.frequency.exponentialRampToValueAtTime(110 + i * 30, t + 1.5);
       g.gain.setValueAtTime(0.0001, t);
-      g.gain.exponentialRampToValueAtTime(0.16, t + 0.15);
+      g.gain.exponentialRampToValueAtTime(0.15, t + 0.15);
       g.gain.exponentialRampToValueAtTime(0.0001, t + 1.8);
       o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + 2);
     }
@@ -196,52 +192,50 @@ function heartbeat() {
   if (!AC) return;
   try {
     var t = AC.currentTime, o = AC.createOscillator(), g = AC.createGain();
-    o.type = "sine"; o.frequency.value = 62;
+    o.type = 'sine'; o.frequency.value = 62;
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(0.30, t + 0.03);
+    g.gain.exponentialRampToValueAtTime(0.28, t + 0.03);
     g.gain.exponentialRampToValueAtTime(0.0001, t + 0.30);
     o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t + 0.35);
   } catch (e) {}
 }
 
-/* ===================== 输入 ===================== */
+/* ===== 输入 ===== */
 var keys = {};
-window.addEventListener("keydown", function (e) {
+window.addEventListener('keydown', function (e) {
   keys[e.key.toLowerCase()] = true;
-  if ([" ", "ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight"].indexOf(e.key) >= 0) e.preventDefault();
+  if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) >= 0) e.preventDefault();
 });
-window.addEventListener("keyup", function (e) { keys[e.key.toLowerCase()] = false; });
+window.addEventListener('keyup', function (e) { keys[e.key.toLowerCase()] = false; });
 
-var stick = { on: false, id: null, ox: 0, oy: 0, x: 0, y: 0, dx: 0, dy: 0 };
+var stick = { on: false, id: null, ox: 0, oy: 0, x: 0, y: 0 };
 function tPos(t) { var r = cv.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; }
-cv.addEventListener("touchstart", function (e) {
+cv.addEventListener('touchstart', function (e) {
   if (stick.id === null) { var p = tPos(e.changedTouches[0]); stick.id = e.changedTouches[0].identifier; stick.ox = p.x; stick.oy = p.y; stick.x = p.x; stick.y = p.y; stick.on = true; }
   e.preventDefault();
 }, { passive: false });
-cv.addEventListener("touchmove", function (e) {
+cv.addEventListener('touchmove', function (e) {
   for (var i = 0; i < e.changedTouches.length; i++) {
     var t = e.changedTouches[i]; if (t.identifier !== stick.id) continue;
     var p = tPos(t); stick.x = p.x; stick.y = p.y;
   }
   e.preventDefault();
 }, { passive: false });
-cv.addEventListener("touchend", function (e) {
+cv.addEventListener('touchend', function (e) {
   for (var i = 0; i < e.changedTouches.length; i++) { if (e.changedTouches[i].identifier === stick.id) { stick.id = null; stick.on = false; } }
 }, { passive: false });
-cv.addEventListener("touchcancel", function () { stick.id = null; stick.on = false; });
-
-/* 鼠标拖动也行 */
-var mouse = { on: false };
-cv.addEventListener("mousedown", function (e) { var p = tPos(e); mouse.on = true; stick.ox = p.x; stick.oy = p.y; stick.x = p.x; stick.y = p.y; stick.on = true; });
-window.addEventListener("mousemove", function (e) { if (!mouse.on) return; var p = tPos(e); stick.x = p.x; stick.y = p.y; });
-window.addEventListener("mouseup", function () { mouse.on = false; stick.on = false; });
+cv.addEventListener('touchcancel', function () { stick.id = null; stick.on = false; });
+var mouseOn = false;
+cv.addEventListener('mousedown', function (e) { var p = tPos(e); mouseOn = true; stick.ox = p.x; stick.oy = p.y; stick.x = p.x; stick.y = p.y; stick.on = true; });
+window.addEventListener('mousemove', function (e) { if (!mouseOn) return; var p = tPos(e); stick.x = p.x; stick.y = p.y; });
+window.addEventListener('mouseup', function () { mouseOn = false; stick.on = false; });
 
 function inputVec() {
   var dx = 0, dy = 0;
-  if (keys["a"] || keys["arrowleft"]) dx -= 1;
-  if (keys["d"] || keys["arrowright"]) dx += 1;
-  if (keys["w"] || keys["arrowup"]) dy -= 1;
-  if (keys["s"] || keys["arrowdown"]) dy += 1;
+  if (keys['a'] || keys['arrowleft']) dx -= 1;
+  if (keys['d'] || keys['arrowright']) dx += 1;
+  if (keys['w'] || keys['arrowup']) dy -= 1;
+  if (keys['s'] || keys['arrowdown']) dy += 1;
   if (dx || dy) { var m = Math.hypot(dx, dy); return { x: dx / m, y: dy / m }; }
   if (stick.on) {
     var vx = stick.x - stick.ox, vy = stick.y - stick.oy, m2 = Math.hypot(vx, vy);
@@ -250,25 +244,27 @@ function inputVec() {
   return { x: 0, y: 0 };
 }
 
-/* ===================== 开始 ===================== */
-document.getElementById("bStart").onclick = function () {
-  sTitle.classList.remove("on"); initAudio();
-  if (AC && AC.state === "suspended") { try { AC.resume(); } catch (e) {} }
-  started = true; phase = "day";
-  toast("先去采点吃的，再捡些柴", 3200);
+/* ===== 开始 ===== */
+document.getElementById('bStart').onclick = function () {
+  sTitle.classList.remove('on'); initAudio();
+  if (AC && AC.state === 'suspended') { try { AC.resume(); } catch (e) {} }
+  started = true; phase = 'day';
+  toast('先去采点吃的，再捡些柴', 3200);
 };
-document.getElementById("bAgain").onclick = function () {
-  sEnd.classList.remove("on");
+document.getElementById('bAgain').onclick = function () {
+  sEnd.classList.remove('on');
   player.x = 540; player.y = 1520; friend.x = 470; friend.y = 1560;
   mimic.on = false; have.m = 0; have.w = 0; makePicks(); dark = 0; shake = 0; chaseT = 0;
-  phase = "day"; toast("先去采点吃的，再捡些柴", 3200);
+  phase = 'day'; toast('先去采点吃的，再捡些柴', 3200);
 };
 
-/* ===================== 更新 ===================== */
+/* ===== 更新 ===== */
 function moveEnt(e, vx, vy, dt) {
   var nx = e.x + vx * dt, ny = e.y + vy * dt;
-  var b = blocked(nx, e.y, e.r); if (b) { var a = Math.atan2(e.y - b.y, nx - b.x); nx = b.x + Math.cos(a) * (b.r + e.r); }
-  b = blocked(nx, ny, e.r); if (b) { var a2 = Math.atan2(ny - b.y, nx - b.x); ny = b.y + Math.sin(a2) * (b.r + e.r); }
+  var b = blocked(nx, e.y, e.r);
+  if (b) { var a = Math.atan2(e.y - b.y, nx - b.x); nx = b.x + Math.cos(a) * (b.r + e.r); }
+  b = blocked(nx, ny, e.r);
+  if (b) { var a2 = Math.atan2(ny - b.y, nx - b.x); ny = b.y + Math.sin(a2) * (b.r + e.r); }
   e.x = Math.max(20, Math.min(WORLD.w - 20, nx));
   e.y = Math.max(20, Math.min(WORLD.h - 20, ny));
 }
@@ -279,53 +275,49 @@ function update(dt) {
   if (shake > 0) shake = Math.max(0, shake - dt * 2.2);
   var iv = inputVec();
 
-  if (phase === "day" || phase === "morning" || phase === "chase") {
-    var sp = player.sp * (phase === "chase" ? 1.04 : 1);
+  if (phase === 'day' || phase === 'morning' || phase === 'chase') {
+    var sp = player.sp * (phase === 'chase' ? 1.05 : 1);
     moveEnt(player, iv.x * sp, iv.y * sp, dt);
     if (iv.x) player.face = iv.x > 0 ? 1 : -1;
   }
 
-  /* 朋友跟着 —— 白天像是同行，夜里要紧跟着 */
-  if (phase !== "title" && phase !== "end") {
-    var tx = player.x - 46 * player.face, ty = player.y + 42;
-    var dx = tx - friend.x, dy = ty - friend.y, d = Math.hypot(dx, dy);
-    if (d > 4) { var s = Math.min(1, d / 260) * (phase === "chase" ? 190 : 150) * dt; moveEnt(friend, dx / d * s / dt, dy / d * s / dt, dt); friend.face = dx > 0 ? 1 : -1; }
-  }
-
-  /* 采东西 */
-  if (phase === "day") {
-    for (var i = 0; i < picks.length; i++) {
-      var p = picks[i]; if (p.got) continue;
-      if (Math.hypot(p.x - player.x, p.y - player.y) < 42) {
-        p.got = true; onPick(p.t);
-      }
+  if (started && phase !== 'end') {
+    var ftx = player.x - 46 * player.face, fty = player.y + 42;
+    var fdx = ftx - friend.x, fdy = fty - friend.y, fd = Math.hypot(fdx, fdy);
+    if (fd > 4) {
+      var fs = Math.min(1, fd / 260) * (phase === 'chase' ? 195 : 155);
+      moveEnt(friend, fdx / fd * fs, fdy / fd * fs, dt);
+      friend.face = fdx > 0 ? 1 : -1;
     }
   }
 
-  /* 夜里鬼叫 */
-  if (phase === "night") {
+  if (phase === 'day') {
+    for (var i = 0; i < picks.length; i++) {
+      var p = picks[i]; if (p.got) continue;
+      if (Math.hypot(p.x - player.x, p.y - player.y) < 42) { p.got = true; onPick(p.t); }
+    }
+  }
+
+  if (phase === 'night') {
     howlTimer -= dt;
     if (howlTimer <= 0) { howlTimer = 4 + Math.random() * 5; howl(); shake = Math.max(shake, 0.7); }
   }
 
-  /* 走到那个地方 */
-  if (phase === "morning") {
-    if (Math.hypot(spot.x - player.x, spot.y - player.y) < spot.r) startFind();
+  if (phase === 'morning') {
+    if (Math.hypot(spot.x - player.x, spot.y - player.y) < spot.r) { startFind(); }
   }
 
-  /* 追 */
-  if (phase === "chase") {
+  if (phase === 'chase') {
     chaseT += dt; dark = Math.min(1, dark + dt * 0.25);
     var mdx = player.x - mimic.x, mdy = player.y - mimic.y, md = Math.hypot(mdx, mdy);
-    var msp = mimic.sp + Math.min(46, chaseT * 0.55);
+    var msp = mimic.sp + Math.min(48, chaseT * 0.55);
     if (md > 1) moveEnt(mimic, mdx / md * msp, mdy / md * msp, dt);
     hbTimer -= dt;
     if (hbTimer <= 0) { hbTimer = Math.max(0.45, 1.1 - chaseT * 0.012); heartbeat(); }
-    if (md < 34) { endGame("被 抓 住 了", "它的手很凉。<br><br>你最后想到的，是早上那具躯干 —— 纹身在小腹上。<br>你那时候就应该跑。"); return; }
+    if (md < 34) { endGame('被 抓 住 了', '它的手很凉。<br><br>你最后想到的，是早上那具躯干 —— 纹身在小腹上。<br>你那时候就该跑。'); return; }
     if (Math.hypot(exitM.x - player.x, exitM.y - player.y) < exitM.r) { winGame(); return; }
   }
 
-  /* 相机 */
   var cx = player.x - W / 2, cy = player.y - H / 2;
   cam.x += (cx - cam.x) * Math.min(1, dt * 8);
   cam.y += (cy - cam.y) * Math.min(1, dt * 8);
@@ -336,213 +328,113 @@ function update(dt) {
 
   tickToast(dt);
 
-  var L = "", R = "";
-  if (phase === "day") { L = "蘑菇 " + have.m + "/" + NEED.m + "　柴火 " + have.w + "/" + NEED.w; R = "天还亮着"; }
-  else if (phase === "morning") { L = "往昨晚的声音走"; R = "第二天"; }
-  else if (phase === "chase") { L = "跑"; R = "别回头"; }
-  document.getElementById("hudL").textContent = L;
-  document.getElementById("hudR").textContent = R;
+  var L = '', Rt = '';
+  if (phase === 'day') { L = '蘑菇 ' + have.m + '/' + NEED.m + '　柴火 ' + have.w + '/' + NEED.w; Rt = '天还亮着'; }
+  else if (phase === 'night') { L = '帐篷里'; Rt = '别出去'; }
+  else if (phase === 'morning') { L = '往昨晚的声音走'; Rt = '第二天'; }
+  else if (phase === 'chase') { L = '跑'; Rt = '别回头'; }
+  else { L = ''; Rt = ''; }
+  document.getElementById('hudL').textContent = L;
+  document.getElementById('hudR').textContent = Rt;
 }
 
-/* ===================== 剧情触发 ===================== */
+/* ===== 剧情触发 ===== */
+var NIGHT_TEXT = '柴火够烧了。<br><br>' +
+  '天说黑就黑。林子里先是静下来 —— 静得连虫都没有。<br><br>' +
+  '然后是叫声。<br>' +
+  '不像狼，不像人。像有人在很远的地方，用很低的声音哭。<br><br>' +
+  '你和朋友挤在帐篷里，谁都没敢掀帘子。<br>' +
+  '他握着你的胳膊，说没事，说天亮了就走。<br><br>' +
+  '<span style="color:#6a7880">你后来才想起来 —— 那句话，他说的语调是平的。</span>';
+
+var FIND_TEXT = '地上有东西。<br><br>' +
+  '你先看见的是几片 —— 说不出口的。<br>' +
+  '头没有了，四肢也没有了。只剩一截躯干仰着躺在落叶里。<br><br>' +
+  '你已经站不住了。朋友在你身后一声不响。<br><br>' +
+  '然后你看见了：<b>小腹上有个纹身。</b><br>' +
+  '右腹下面那个 —— 你们两个去年一起纹的。<br><br>' +
+  '你慢慢转过身。<br>' +
+  '他站在你后面，一直在笑。<br>' +
+  '<span style="color:#6a7880">可他的嘴角是平的，一直没动。</span>';
+
+var CAR_TEXT = '你们连滚带爬回到营地。<br><br>' +
+  '车还在。四个轮胎，全瘪了。<br>' +
+  '侧面整整齐齐四个口子 —— 是用刀划的，不是石头扎的。<br><br>' +
+  '有人比你们先到。<br><br>' +
+  '他离你越来越近。<br>' +
+  '你只记得来时的路在林子的另一头。';
+
 function onPick(t) {
-  if (t === "m") have.m++; else have.w++;
-  toast(t === "m" ? "捡到一朵蘑菇" : "捡到一根柴", 1200);
+  if (t === 'm') have.m++; else have.w++;
+  toast(t === 'm' ? '捡到一朵蘑菇' : '捡到一根柴', 1200);
   if (have.m >= NEED.m && have.w >= NEED.w) {
     setTimeout(function () {
-      if (phase !== "day") return;
-      phase = "night"; dark = 0.62;
-      showCut("那 一 夜",
-        "柴火够烧了。<br><br>
-         天说黑就黑。林子里先是静下来 —— 静得连虫都没有。<br><br>
-         然后是叫声。<br>
-         不像狼，不像人。像有人在很远的地方，用很低的声音哭。<br><br>
-         你和朋友挤在帐篷里，谁都没敢掀帘子。<br>
-         他握着你的胳膊，说没事，说天亮了就走。<br><br>
-         <span style=\"color:#6a7880\">你后来想起来 —— 那句话，他说的语调是平的。</span>",
-        "睡 下", function () { startNight(); });
+      if (phase !== 'day') return;
+      phase = 'night'; dark = 0.62;
+      showCut('那 一 夜', NIGHT_TEXT, '睡 下', startNight);
     }, 700);
   }
 }
 
 function startNight() {
-  phase = "night"; dark = 0.72; shake = 0.9; howl();
-  toast("外面有东西", 2600);
+  phase = 'night'; dark = 0.72; shake = 0.9; howl();
+  toast('外面有东西', 2600);
   setTimeout(function () {
-    if (phase !== "night") return;
-    phase = "morning"; dark = 0;
-    toast("第二天。去昨晚有声音的地方看看", 4200);
-  }, 6200);
+    if (phase !== 'night') return;
+    phase = 'morning'; dark = 0;
+    toast('第二天。去昨晚有声音的地方看看', 4200);
+  }, 6500);
 }
 
 function startFind() {
-  phase = "cut"; dark = 0;
-  showCut("什 么 东 西",
-    "地上有东西。<br><br>
-     你先看见的是几片 —— 说不出口的。<br>
-     头没有了，四肢也没有了。只剩一截躯干仰着躺在落叶里。<br><br>
-     你已经站不住了。朋友在你身后一声不响。<br><br>
-     然后你看见了：<b>小腹上有个纹身。</b><br>
-     他右腹下面那个，你们两个去年一起纹的。<br><br>
-     你慢慢转过身 —— 他站在你后面，一直在笑。<br>
-     <span style=\"color:#6a7880\">他的嘴角是平的，没有动。</span>",
-    "往 车 跑", function () { startCar(); });
+  phase = 'cut'; dark = 0;
+  showCut('什 么 东 西', FIND_TEXT, '往 车 跑', startCar);
 }
 
 function startCar() {
-  phase = "cut";
-  showCut("四 个 轮 子",
-    "你们连滚带爬回到营地。<br><br>
-     车还在。四个轮胎，全瘪了。<br>
-     侧面整整齐齐四个口子 —— 是用刀割的，不是石头扎的。<br><br>
-     有人比你们先到。<br><br>
-     他离你越来越近。
-     你只记得来时的路在林子的另一头。",
-    "跑", function () { startChase(); });
+  phase = 'cut';
+  showCut('四 个 轮 子', CAR_TEXT, '跑', startChase);
 }
 
 function startChase() {
-  phase = "chase"; chaseT = 0; dark = 0.25;
+  phase = 'chase'; chaseT = 0; dark = 0.25;
+  player.x = car.x + 60; player.y = car.y - 60;
+  friend.x = player.x - 40; friend.y = player.y + 30;
   mimic.x = spot.x + 120; mimic.y = spot.y + 120; mimic.on = true;
-  player.x = car.x + 60; player.y = car.y - 60; friend.x = player.x - 40; friend.y = player.y + 30;
   flash(0.9, 700); howl(); shake = 1;
-  toast("往林子外面跑！", 3000);
+  toast('往林子外面跑！', 3000);
 }
+
+var WIN_TEXT = '光打在你脸上。<br><br>' +
+  '你一口气跑到公路上，拦到一辆过路的货车。<br>' +
+  '警察第二天才进林子 —— 什么都没找到。<br>' +
+  '没有躯干，没有纹身，没有那个人。<br><br>' +
+  '只有你那辆车，四个轮胎全碎了，停在营地边。<br><br>' +
+  '你回去看过一次。<br>' +
+  '帐篷里，有人替你收拾好了柴火。';
 
 function winGame() {
-  phase = "cut"; mimic.on = false;
-  setTimeout(function () {
-    endGame("你 跑 出 来 了",
-      "光打在你脸上。<br><br>
-       你一口气跑到公路上，拦到一辆过路的货车。<br>
-       警察第二天才进林子 —— 什么都没找到。<br>
-       没有躯干，没有纹身，没有那个人。<br><br>
-       只有你那辆车，四个轮胎全碎了，停在营地边。
-       <br><br>你回去看过一次。<br>
-       帐篷里，有人替你收拾好了柴火。");
-  }, 900);
+  phase = 'cut'; mimic.on = false;
+  setTimeout(function () { endGame('你 跑 出 来 了', WIN_TEXT); }, 900);
 }
 
-/* ===================== 绘制 ===================== */
+/* ===== 绘制 ===== */
 function drawCover(im, alpha, par) {
   if (!im || !im.complete || !im.naturalWidth) return false;
   var s = Math.max(W / im.naturalWidth, H / im.naturalHeight) * 1.16;
   var dw = im.naturalWidth * s, dh = im.naturalHeight * s;
-  var ox = -((dw - W) / 2) - (cam.x - 0) * (par || 0);
-  var oy = -((dh - H) / 2) - (cam.y - 0) * (par || 0);
+  var ox = -((dw - W) / 2) - cam.x * (par || 0);
+  var oy = -((dh - H) / 2) - cam.y * (par || 0);
   ctx.globalAlpha = alpha;
   ctx.drawImage(im, ox, oy, dw, dh);
   ctx.globalAlpha = 1;
   return true;
 }
 
-function drawWorld() {
-  var bg = ctx.createLinearGradient(0, 0, 0, H);
-  bg.addColorStop(0, "#0a1114"); bg.addColorStop(1, "#05080a");
-  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
-
-  var isDay = (phase === "day" || phase === "morning" || phase === "day2" || phase === "cut" || phase === "title" || phase === "end");
-  var nightish = (phase === "night" || phase === "chase");
-  if (nightish) drawCover(IMG.night, 1, 0.10);
-  else drawCover(IMG.day, 1, 0.10);
-
-  ctx.save();
-  var sx = (Math.random() - 0.5) * shake * 16, sy = (Math.random() - 0.5) * shake * 16;
-  ctx.translate(-cam.x + sx, -cam.y + sy);
-
-  /* 那两处地点 */
-  function marker(m, color, label, pulse) {
-    var a = 0.35 + Math.sin(timeAll * (pulse || 2.2)) * 0.16;
-    ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, 6.2832);
-    ctx.strokeStyle = color; ctx.globalAlpha = a; ctx.lineWidth = 2; ctx.stroke();
-    ctx.globalAlpha = a * 0.20; ctx.fillStyle = color; ctx.fill(); ctx.globalAlpha = 1;
-    if (label) {
-      ctx.font = "13px -apple-system, sans-serif"; ctx.fillStyle = "rgba(200,220,228,.72)";
-      ctx.textAlign = "center"; ctx.fillText(label, m.x, m.y - m.r - 10);
-    }
-  }
-  if (phase === "morning") marker(spot, "#7d2b2b", "昨晚的声音", 2.0);
-  if (phase === "chase") marker(exitM, "#4b7d6b", "公路", 3.2);
-  if (phase === "day") marker(car, "rgba(90,120,130,.5)", "", 1.2);
-
-  /* 树 */
-  for (var i = 0; i < trees.length; i++) {
-    var t = trees[i];
-    if (t.x - cam.x < -90 || t.x - cam.x > W + 90 || t.y - cam.y < -90 || t.y - cam.y > H + 90) continue;
-    ctx.globalAlpha = 0.92;
-    ctx.beginPath(); ctx.ellipse(t.x, t.y + 4, t.r * 1.1, t.r * 0.42, 0, 0, 6.2832);
-    ctx.fillStyle = "rgba(0,0,0,.55)"; ctx.fill();
-    ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, 6.2832);
-    ctx.fillStyle = nightish ? "#0c1417" : "#16221d"; ctx.fill();
-    ctx.globalAlpha = 1;
-  }
-
-  /* 能捡的东西 */
-  if (phase === "day") {
-    for (var j = 0; j < picks.length; j++) {
-      var p = picks[j]; if (p.got) continue;
-      var bob = Math.sin(timeAll * 2.4 + p.ph) * 3;
-      if (p.t === "m") {
-        ctx.beginPath(); ctx.ellipse(p.x, p.y + bob + 6, 9, 3, 0, 0, 6.2832); ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fill();
-        ctx.beginPath(); ctx.arc(p.x, p.y + bob, 9, 3.1416, 0); ctx.fillStyle = "#a8332e"; ctx.fill();
-        ctx.beginPath(); ctx.arc(p.x, p.y + bob, 2.4, 0, 6.2832); ctx.fillStyle = "#e8ded0"; ctx.fill();
-      } else {
-        ctx.beginPath(); ctx.ellipse(p.x, p.y + bob + 5, 13, 3, 0, 0, 6.2832); ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fill();
-        ctx.save(); ctx.translate(p.x, p.y + bob); ctx.rotate(-0.35);
-        ctx.fillStyle = "#4a3524"; ctx.fillRect(-14, -4, 28, 8);
-        ctx.fillStyle = "#5f452e"; ctx.fillRect(-14, -4, 28, 3);
-        ctx.restore();
-      }
-    }
-  }
-
-  /* 朋友 */
-  if (phase !== "title" && phase !== "end" && phase !== "chase") drawPerson(friend, "#7f8c93", "#59636a");
-  /* 追的时候，朋友还在你身后 */
-  if (phase === "chase") drawPerson(friend, "#8d99a0", "#5d666d");
-
-  /* 主角 */
-  if (phase !== "title" && phase !== "end") drawPerson(player, "#c8b28a", "#8a7554");
-
-  /* 伪人 */
-  if (mimic.on && IMG.mimic.complete && IMG.mimic.naturalWidth) {
-    var im = IMG.mimic, iw = im.naturalWidth, ih = im.naturalHeight;
-    var cw = iw * 0.84, ch = ih * 0.90;             /* 裁掉右下角水印 */
-    var hgt = 210, wid = hgt * (cw / ch);
-    ctx.save();
-    ctx.globalCompositeOperation = "multiply";      /* 白底自动融进暗景 */
-    ctx.globalAlpha = 0.94;
-    ctx.drawImage(im, 0, 0, cw, ch, mimic.x - wid / 2, mimic.y - hgt + 18, wid, hgt);
-    ctx.restore();
-  }
-
-  ctx.restore();
-
-  /* 夜 / 雾 */
-  var dk = phase === "night" ? 0.62 : (phase === "chase" ? (0.30 + dark * 0.34) : 0);
-  if (dk > 0) {
-    var vg = ctx.createRadialGradient(player.x - cam.x, player.y - cam.y, 40, player.x - cam.x, player.y - cam.y, Math.max(W, H) * 0.62);
-    vg.addColorStop(0, "rgba(0,0,0," + (dk * 0.10) + ")");
-    vg.addColorStop(0.42, "rgba(0,0,0," + (dk * 0.62) + ")");
-    vg.addColorStop(1, "rgba(0,0,0," + dk + ")");
-    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
-  }
-
-  /* 摇杆 */
-  if (stick.on) {
-    ctx.globalAlpha = 0.30; ctx.beginPath(); ctx.arc(stick.ox, stick.oy, 46, 0, 6.2832);
-    ctx.strokeStyle = "#9fd8d8"; ctx.lineWidth = 1.5; ctx.stroke();
-    var vx = stick.x - stick.ox, vy = stick.y - stick.oy, m = Math.hypot(vx, vy);
-    if (m > 46) { vx = vx / m * 46; vy = vy / m * 46; }
-    ctx.beginPath(); ctx.arc(stick.ox + vx, stick.oy + vy, 17, 0, 6.2832);
-    ctx.fillStyle = "#9fd8d8"; ctx.fill(); ctx.globalAlpha = 1;
-  }
-}
-
 function drawPerson(e, body, head) {
   var x = e.x, y = e.y;
   ctx.beginPath(); ctx.ellipse(x, y + 11, 13, 5, 0, 0, 6.2832);
-  ctx.fillStyle = "rgba(0,0,0,.5)"; ctx.fill();
+  ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fill();
   ctx.fillStyle = head;
   ctx.beginPath(); ctx.arc(x, y - 12, 8, 0, 6.2832); ctx.fill();
   ctx.fillStyle = body;
@@ -551,13 +443,104 @@ function drawPerson(e, body, head) {
   ctx.closePath(); ctx.fill();
 }
 
-/* ===================== 主循环 ===================== */
+function drawWorld() {
+  var bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#0a1114'); bg.addColorStop(1, '#05080a');
+  ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+  var nightish = (phase === 'night' || phase === 'chase');
+  if (nightish) drawCover(IMG.night, 1, 0.10); else drawCover(IMG.day, 1, 0.10);
+
+  ctx.save();
+  ctx.translate(-cam.x + (Math.random() - 0.5) * shake * 16, -cam.y + (Math.random() - 0.5) * shake * 16);
+
+  function marker(m, color, label, pulse) {
+    var a = 0.34 + Math.sin(timeAll * (pulse || 2.2)) * 0.16;
+    ctx.beginPath(); ctx.arc(m.x, m.y, m.r, 0, 6.2832);
+    ctx.strokeStyle = color; ctx.globalAlpha = a; ctx.lineWidth = 2; ctx.stroke();
+    ctx.globalAlpha = a * 0.20; ctx.fillStyle = color; ctx.fill(); ctx.globalAlpha = 1;
+    if (label) {
+      ctx.font = '13px -apple-system, sans-serif'; ctx.fillStyle = 'rgba(200,220,228,.72)';
+      ctx.textAlign = 'center'; ctx.fillText(label, m.x, m.y - m.r - 10); ctx.textAlign = 'left';
+    }
+  }
+  if (phase === 'morning') marker(spot, '#7d2b2b', '昨晚的声音', 2.0);
+  if (phase === 'chase') marker(exitM, '#4b7d6b', '公路', 3.2);
+
+  for (var i = 0; i < trees.length; i++) {
+    var t = trees[i];
+    if (t.x - cam.x < -90 || t.x - cam.x > W + 90 || t.y - cam.y < -90 || t.y - cam.y > H + 90) continue;
+    ctx.globalAlpha = 0.9;
+    ctx.beginPath(); ctx.ellipse(t.x, t.y + 4, t.r * 1.1, t.r * 0.42, 0, 0, 6.2832);
+    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(t.x, t.y, t.r, 0, 6.2832);
+    ctx.fillStyle = nightish ? '#0c1417' : '#16221d'; ctx.fill();
+    ctx.globalAlpha = 1;
+  }
+
+  if (phase === 'day') {
+    for (var j = 0; j < picks.length; j++) {
+      var p = picks[j]; if (p.got) continue;
+      var bob = Math.sin(timeAll * 2.4 + p.ph) * 3;
+      if (p.t === 'm') {
+        ctx.beginPath(); ctx.ellipse(p.x, p.y + bob + 6, 9, 3, 0, 0, 6.2832); ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y + bob, 9, 3.1416, 0); ctx.fillStyle = '#a8332e'; ctx.fill();
+        ctx.beginPath(); ctx.arc(p.x, p.y + bob, 2.4, 0, 6.2832); ctx.fillStyle = '#e8ded0'; ctx.fill();
+      } else {
+        ctx.beginPath(); ctx.ellipse(p.x, p.y + bob + 5, 13, 3, 0, 0, 6.2832); ctx.fillStyle = 'rgba(0,0,0,.5)'; ctx.fill();
+        ctx.save(); ctx.translate(p.x, p.y + bob); ctx.rotate(-0.35);
+        ctx.fillStyle = '#4a3524'; ctx.fillRect(-14, -4, 28, 8);
+        ctx.fillStyle = '#5f452e'; ctx.fillRect(-14, -4, 28, 3);
+        ctx.restore();
+      }
+    }
+  }
+
+  if (started && phase !== 'end') drawPerson(friend, '#7f8c93', '#59636a');
+  if (started && phase !== 'end') drawPerson(player, '#c8b28a', '#8a7554');
+
+  if (mimic.on && IMG.mimic.complete && IMG.mimic.naturalWidth) {
+    var im = IMG.mimic, iw = im.naturalWidth, ih = im.naturalHeight;
+    var cw = iw * 0.84, ch = ih * 0.90;
+    var hgt = 230, wid = hgt * (cw / ch);
+    ctx.save();
+    ctx.globalCompositeOperation = 'multiply';
+    ctx.globalAlpha = 0.95;
+    ctx.drawImage(im, 0, 0, cw, ch, mimic.x - wid / 2, mimic.y - hgt + 20, wid, hgt);
+    ctx.restore();
+  }
+
+  ctx.restore();
+
+  var dk = phase === 'night' ? 0.62 : (phase === 'chase' ? (0.30 + dark * 0.34) : 0);
+  if (dk > 0) {
+    var vg = ctx.createRadialGradient(player.x - cam.x, player.y - cam.y, 40, player.x - cam.x, player.y - cam.y, Math.max(W, H) * 0.62);
+    vg.addColorStop(0, 'rgba(0,0,0,' + (dk * 0.10) + ')');
+    vg.addColorStop(0.42, 'rgba(0,0,0,' + (dk * 0.62) + ')');
+    vg.addColorStop(1, 'rgba(0,0,0,' + dk + ')');
+    ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+  }
+
+  if (stick.on) {
+    ctx.globalAlpha = 0.30; ctx.beginPath(); ctx.arc(stick.ox, stick.oy, 46, 0, 6.2832);
+    ctx.strokeStyle = '#9fd8d8'; ctx.lineWidth = 1.5; ctx.stroke();
+    var vx = stick.x - stick.ox, vy = stick.y - stick.oy, m = Math.hypot(vx, vy);
+    if (m > 46) { vx = vx / m * 46; vy = vy / m * 46; }
+    ctx.beginPath(); ctx.arc(stick.ox + vx, stick.oy + vy, 17, 0, 6.2832);
+    ctx.fillStyle = '#9fd8d8'; ctx.fill(); ctx.globalAlpha = 1;
+  }
+}
+
+/* ===== 主循环 ===== */
 var last = 0;
 function loop(ts) {
   if (!last) last = ts;
   var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
   if (started) update(dt);
-  if (phase === "title" || phase === "end") { cam.x = Math.max(0, Math.min(WORLD.w - W, player.x - W / 2)); cam.y = Math.max(0, Math.min(WORLD.h - H, player.y - H / 2)); }
+  if (phase === 'title' || phase === 'end') {
+    cam.x = Math.max(0, Math.min(WORLD.w - W, player.x - W / 2));
+    cam.y = Math.max(0, Math.min(WORLD.h - H, player.y - H / 2));
+  }
   drawWorld();
   requestAnimationFrame(loop);
 }
