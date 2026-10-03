@@ -1,7 +1,7 @@
 "use strict";
 var A = {
-  kang:  'https://i.postimg.cc/wTwB3Mft/retouch-2026100317292114.png',
-  mate:  'https://i.postimg.cc/05pngRt4/retouch-2026100317423607.png',
+  hero:  'https://i.postimg.cc/L4BFvs17/retouch-2026100319351499.png',
+  mate:  'https://i.postimg.cc/C5NyKv0Y/retouch-2026100319353388.png',
   camp:  'https://i.postimg.cc/BQnSWsSx/mmexport1791019923449.jpg',
   mark:  'https://i.postimg.cc/Y0qHwfwd/mmexport1791019926001.jpg',
   tire:  'https://i.postimg.cc/LsKFsMpv/mmexport1791019928315.jpg',
@@ -27,8 +27,7 @@ function resize() {
 window.addEventListener('resize', resize);
 window.addEventListener('orientationchange', function () { manualOff = false; setTimeout(resize, 160); });
 
-/* ---- 横屏提示（带手动关闭） ---- */
-var rotEl = null, rotBtn = null, manualOff = false;
+var rotEl = null, manualOff = false;
 function isPortrait() {
   try { if (window.matchMedia) return window.matchMedia('(orientation: portrait)').matches; } catch (e) {}
   return window.innerHeight > window.innerWidth * 1.05;
@@ -38,29 +37,24 @@ function buildRotate() {
   st.textContent = '#rot{position:fixed;inset:0;z-index:40;background:#05070a;display:none;' +
     'flex-direction:column;align-items:center;justify-content:center;text-align:center;' +
     'color:#7d8d95;font-size:15px;letter-spacing:4px;line-height:2.4;}' +
-    '#rot.on{display:flex;}' +
-    '#rot span{font-size:11px;color:#44555d;letter-spacing:2px;}' +
+    '#rot.on{display:flex;}#rot span{font-size:11px;color:#44555d;letter-spacing:2px;}' +
     '#rot .rb{margin-top:34px;padding:12px 30px;font-size:12px;letter-spacing:3px;' +
     'color:#9fd8d8;border:1px solid #38505c;border-radius:2px;cursor:pointer;}';
   document.head.appendChild(st);
-  rotEl = document.createElement('div');
-  rotEl.id = 'rot';
+  rotEl = document.createElement('div'); rotEl.id = 'rot';
   rotEl.innerHTML = '<div>把 手 机 横 过 来</div><span>横屏才看得清林子</span>' +
     '<div class="rb" id="rotBtn">我 已 经 横 过 来 了</div>';
   document.body.appendChild(rotEl);
-  rotBtn = document.getElementById('rotBtn');
-  rotBtn.onclick = function () { manualOff = true; rotEl.classList.remove('on'); setTimeout(resize, 80); };
+  document.getElementById('rotBtn').onclick = function () { manualOff = true; rotEl.classList.remove('on'); setTimeout(resize, 80); };
 }
 function checkRotate() {
   if (!rotEl) return;
-  var p = isPortrait() && !manualOff;
-  if (H <= W) p = false;
+  var p = isPortrait() && !manualOff; if (H <= W) p = false;
   if (p) rotEl.classList.add('on'); else rotEl.classList.remove('on');
 }
 function lockLandscape() {
   try {
-    var el = document.documentElement;
-    var rf = el.requestFullscreen || el.webkitRequestFullscreen;
+    var el = document.documentElement, rf = el.requestFullscreen || el.webkitRequestFullscreen;
     if (rf) { var p = rf.call(el, { navigationUI: 'hide' }); if (p && p.catch) p.catch(function () {}); }
   } catch (e) {}
   setTimeout(function () {
@@ -72,29 +66,26 @@ function lockLandscape() {
 var WORLD = { w: 1700, h: 1250 };
 function rng(s0) { var s = s0 >>> 0; return function () { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }; }
 var R = rng(20261003);
-var camp = { x: 330, y: 1010 };
-var carM = { x: 300, y: 1110, r: 62 };
-var spot = { x: 1380, y: 330, r: 46 };
-var exitM = { x: 1580, y: 120, r: 82 };
-function dist2(x1, y1, x2, y2) { var a = x1 - x2, b = y1 - y2; return a * a + b * b; }
+var camp = { x: 330, y: 1010 }, carM = { x: 300, y: 1110, r: 62 };
+var spot = { x: 1380, y: 330, r: 46 }, exitM = { x: 1580, y: 120, r: 82 };
+function d2(x1, y1, x2, y2) { var a = x1 - x2, b = y1 - y2; return a * a + b * b; }
 var PATH = [[560,820],[760,640],[860,900],[1010,470],[1080,780],[620,1000],[1180,1010]];
-function clearOf(x, y, d) {
-  if (dist2(x, y, camp.x, camp.y) < d * d) return false;
-  if (dist2(x, y, carM.x, carM.y) < d * d) return false;
-  if (dist2(x, y, spot.x, spot.y) < d * d) return false;
-  if (dist2(x, y, exitM.x, exitM.y) < d * d) return false;
-  for (var i = 0; i < PATH.length; i++) if (dist2(x, y, PATH[i][0], PATH[i][1]) < d * d) return false;
+function clearOf(x, y, dd) {
+  if (d2(x, y, camp.x, camp.y) < dd * dd) return false;
+  if (d2(x, y, carM.x, carM.y) < dd * dd) return false;
+  if (d2(x, y, spot.x, spot.y) < dd * dd) return false;
+  if (d2(x, y, exitM.x, exitM.y) < dd * dd) return false;
+  for (var i = 0; i < PATH.length; i++) if (d2(x, y, PATH[i][0], PATH[i][1]) < dd * dd) return false;
   return true;
 }
 var trees = [];
 (function () {
-  var n = 0, guard = 0;
-  while (n < 120 && guard < 5000) {
-    guard++;
+  var n = 0, g = 0;
+  while (n < 120 && g < 5000) {
+    g++;
     var x = 40 + R() * (WORLD.w - 80), y = 40 + R() * (WORLD.h - 80);
     if (!clearOf(x, y, 112)) continue;
-    trees.push({ x: x, y: y, r: 17 + R() * 13, s: 0.8 + R() * 0.55 });
-    n++;
+    trees.push({ x: x, y: y, r: 17 + R() * 13, s: 0.8 + R() * 0.55 }); n++;
   }
 })();
 function hitTree(x, y, r) {
@@ -117,7 +108,7 @@ function makePicks() {
 }
 makePicks();
 var have = { m: 0, w: 0 };
-var phase = 'title', started = false, shake = 0, T = 0, chaseT = 0, dark = 0, stepT = 0;
+var phase = 'title', started = false, shake = 0, T = 0, chaseT = 0, dark = 0, stepT = 0, idleN = 0, chaseLine = 0, chaseLineT = 0;
 
 var toastEl = document.getElementById('toast'), toastT = 0;
 function toast(t, ms) { toastEl.textContent = t; toastEl.classList.add('on'); toastT = (ms || 2200) / 1000; }
@@ -133,17 +124,104 @@ var sTitle = document.getElementById('sTitle'), cutDone = null;
 function showCut(title, body, btn, imgSrc, cb) {
   cutT.textContent = title; cutB.innerHTML = body;
   if (imgSrc) { cutImg.src = imgSrc; cutImg.style.display = 'block'; } else { cutImg.style.display = 'none'; cutImg.removeAttribute('src'); }
-  document.getElementById('bCut').textContent = btn;
-  cutDone = cb; sCut.classList.add('on');
+  document.getElementById('bCut').textContent = btn; cutDone = cb; sCut.classList.add('on');
 }
 document.getElementById('bCut').onclick = function () { sCut.classList.remove('on'); var f = cutDone; cutDone = null; if (f) f(); };
 function endGame(title, body, imgSrc) {
-  phase = 'end'; mons.on = false;
+  phase = 'end'; mons.on = false; dlg = null;
   endT.textContent = title; endB.innerHTML = body;
   if (imgSrc) { endImg.src = imgSrc; endImg.style.display = 'block'; } else { endImg.style.display = 'none'; endImg.removeAttribute('src'); }
   sEnd.classList.add('on');
 }
 
+/* ==================== 对话系统 ==================== */
+var dlg = null;
+function startDlg(key, onEnd) {
+  var lines = (typeof STORY !== 'undefined') ? STORY[key] : null;
+  if (!lines || !lines.length) { if (onEnd) onEnd(); return; }
+  dlg = { lines: lines, i: 0, shown: 0, onEnd: onEnd || null };
+}
+function dlgAdvance() {
+  if (!dlg) return;
+  var ln = dlg.lines[dlg.i];
+  if (dlg.shown < ln.text.length) { dlg.shown = ln.text.length; return; }
+  dlg.i++;
+  if (dlg.i >= dlg.lines.length) { var f = dlg.onEnd; dlg = null; if (f) f(); return; }
+  dlg.shown = 0;
+}
+function dlgUpdate(dt) {
+  if (!dlg) return;
+  var ln = dlg.lines[dlg.i];
+  if (dlg.shown < ln.text.length) {
+    dlg.shown += dt * 42;
+    if (dlg.shown > ln.text.length) dlg.shown = ln.text.length;
+  }
+}
+function wrapText(t, maxW, font) {
+  ctx.font = font;
+  var out = [], cur = '';
+  for (var i = 0; i < t.length; i++) {
+    var c = t.charAt(i);
+    if (ctx.measureText(cur + c).width > maxW && cur.length) { out.push(cur); cur = c; }
+    else cur += c;
+  }
+  if (cur.length) out.push(cur);
+  return out;
+}
+function drawPortrait(im, cx, bottom, targetH, on, side) {
+  if (!im || !im.complete || !im.naturalWidth) return;
+  var h = targetH, w = h * (im.naturalWidth / im.naturalHeight);
+  ctx.save();
+  ctx.globalAlpha = on ? 1 : 0.38;
+  if (!on) { ctx.filter = 'brightness(0.55)'; }
+  try { ctx.drawImage(im, cx - w / 2, bottom - h, w, h); } catch (e) { ctx.drawImage(im, cx - w / 2, bottom - h, w, h); }
+  ctx.restore();
+}
+function drawDlg() {
+  if (!dlg) return;
+  var ln = dlg.lines[dlg.i];
+  var meOn = (ln.who === 'me'), mateOn = (ln.who === 'mate');
+  var boxH = Math.max(96, Math.min(150, H * 0.30));
+  var boxY = H - boxH;
+  var ph = Math.min(H * 0.64, 400) * 0.98;
+  drawPortrait(IMG.hero, W * 0.17, boxY + 26, ph, meOn);
+  drawPortrait(IMG.mate, W * 0.83, boxY + 26, ph, mateOn);
+  ctx.fillStyle = 'rgba(4,7,9,.88)'; ctx.fillRect(0, boxY, W, boxH);
+  ctx.strokeStyle = 'rgba(96,140,150,.45)'; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(0, boxY + 0.5); ctx.lineTo(W, boxY + 0.5); ctx.stroke();
+  var pad = Math.max(18, W * 0.05);
+  var nameTxt = ln.who === 'me' ? '我' : (ln.who === 'mate' ? '他' : '');
+  var nameCol = ln.who === 'me' ? '#c8b28a' : (ln.who === 'mate' ? '#7fd6c8' : '');
+  if (nameTxt) {
+    ctx.font = '13px -apple-system,sans-serif';
+    ctx.fillStyle = nameCol; ctx.textAlign = 'left';
+    ctx.fillText(nameTxt, pad, boxY + 26);
+  }
+  var fsz = Math.max(14, Math.min(18, W * 0.026));
+  var font = fsz + 'px -apple-system,sans-serif';
+  var txt = ln.text.substring(0, Math.floor(dlg.shown));
+  var lines = wrapText(txt, W - pad * 2, font);
+  ctx.font = font;
+  var ly = boxY + (nameTxt ? 50 : 36);
+  for (var i = 0; i < lines.length && i < 4; i++) {
+    if (ln.who === 'me') ctx.fillStyle = '#e6eee8';
+    else if (ln.who === 'mate') ctx.fillStyle = '#d6eae4';
+    else ctx.fillStyle = '#8fa0a8';
+    ctx.fillText(lines[i], pad, ly);
+    ly += fsz + 8;
+  }
+  if (dlg.shown >= ln.text.length) {
+    ctx.globalAlpha = 0.45 + Math.sin(T * 6) * 0.35;
+    ctx.fillStyle = '#9fd8d8';
+    ctx.beginPath();
+    ctx.moveTo(W - pad - 10, boxY + boxH - 20);
+    ctx.lineTo(W - pad, boxY + boxH - 20);
+    ctx.lineTo(W - pad - 5, boxY + boxH - 12);
+    ctx.closePath(); ctx.fill(); ctx.globalAlpha = 1;
+  }
+}
+
+/* ==================== 声音 ==================== */
 var AC = null, windGain = null, noBuf = null;
 function noiseBuf() {
   if (noBuf || !AC) return noBuf;
@@ -182,6 +260,7 @@ function noiseHit(freq, q, gain, dur, type) {
   } catch (e) {}
 }
 function step() { noiseHit(1500 + Math.random() * 500, 1.2, 0.085, 0.13, 'bandpass'); }
+function blip() { noiseHit(2200, 3, 0.022, 0.03, 'bandpass'); }
 function chew() {
   if (!AC) return;
   for (var i = 0; i < 4; i++) setTimeout(function () { noiseHit(240 + Math.random() * 320, 3, 0.11, 0.22, 'lowpass'); }, i * (110 + Math.random() * 120));
@@ -202,15 +281,18 @@ function tone(f1, f2, gain, dur, type) {
 function howl() { tone(310, 108, 0.14, 1.9, 'sawtooth'); setTimeout(function () { tone(230, 92, 0.11, 1.7, 'triangle'); }, 120); }
 function heartbeat() { tone(64, 52, 0.26, 0.3, 'sine'); }
 
+/* ==================== 输入 ==================== */
 var keys = {};
 window.addEventListener('keydown', function (e) {
   keys[e.key.toLowerCase()] = true;
   if ([' ', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].indexOf(e.key) >= 0) e.preventDefault();
+  if (dlg && (e.key === ' ' || e.key === 'Enter' || e.key === 'ArrowRight')) dlgAdvance();
 });
 window.addEventListener('keyup', function (e) { keys[e.key.toLowerCase()] = false; });
 var stick = { on: false, id: null, ox: 0, oy: 0, x: 0, y: 0 };
 function tp(t) { var r = cv.getBoundingClientRect(); return { x: t.clientX - r.left, y: t.clientY - r.top }; }
 cv.addEventListener('touchstart', function (e) {
+  if (dlg) { dlgAdvance(); e.preventDefault(); return; }
   if (stick.id === null) {
     var p = tp(e.changedTouches[0]);
     stick.id = e.changedTouches[0].identifier;
@@ -230,7 +312,7 @@ cv.addEventListener('touchend', function (e) {
 }, { passive: false });
 cv.addEventListener('touchcancel', function () { stick.id = null; stick.on = false; });
 var mOn = false;
-cv.addEventListener('mousedown', function (e) { var p = tp(e); mOn = true; stick.ox = p.x; stick.oy = p.y; stick.x = p.x; stick.y = p.y; stick.on = true; });
+cv.addEventListener('mousedown', function (e) { if (dlg) { dlgAdvance(); return; } var p = tp(e); mOn = true; stick.ox = p.x; stick.oy = p.y; stick.x = p.x; stick.y = p.y; stick.on = true; });
 window.addEventListener('mousemove', function (e) { if (!mOn) return; var p = tp(e); stick.x = p.x; stick.y = p.y; });
 window.addEventListener('mouseup', function () { mOn = false; stick.on = false; });
 function inputVec() {
@@ -247,28 +329,30 @@ function inputVec() {
   return { x: 0, y: 0 };
 }
 
+/* ==================== 流程 ==================== */
 function reset() {
   player.x = 400; player.y = 1000; player.face = 1;
   friend.x = 340; friend.y = 1040; friend.face = 1;
-  mons.on = false; have.m = 0; have.w = 0;
-  makePicks(); dark = 0; shake = 0; chaseT = 0; phase = 'day';
+  mons.on = false; have.m = 0; have.w = 0; idleN = 0; chaseLine = 0;
+  makePicks(); dark = 0; shake = 0; chaseT = 0; dlf = null; dlg = null; phase = 'day';
 }
 document.getElementById('bStart').onclick = function () {
   sTitle.classList.remove('on'); initAudio();
   if (AC && AC.state === 'suspended') { try { AC.resume(); } catch (e) {} }
   lockLandscape(); manualOff = false; started = true; reset();
-  toast('先采三朵蘑菇，再捡三根柴', 3400);
+  startDlg('open', function () { toast('先采三朵蘑菇，再捡三根柴', 3200); });
 };
 document.getElementById('bAgain').onclick = function () {
   sEnd.classList.remove('on'); if (!AC) initAudio(); started = true; reset();
-  toast('先采三朵蘑菇，再捡三根柴', 3400);
+  startDlg('open', function () { toast('先采三朵蘑菇，再捡三根柴', 3200); });
 };
+var dlf = null;
 function objective() {
   if (phase === 'day') {
     var best = null, bd = 1e9;
     for (var i = 0; i < picks.length; i++) {
       var p = picks[i]; if (p.got) continue;
-      var d = dist2(p.x, p.y, player.x, player.y);
+      var d = d2(p.x, p.y, player.x, player.y);
       if (d < bd) { bd = d; best = p; }
     }
     return best;
@@ -277,7 +361,6 @@ function objective() {
   if (phase === 'chase') return exitM;
   return null;
 }
-
 function moveEnt(e, vx, vy, dt) {
   var nx = e.x + vx * dt, ny = e.y + vy * dt;
   var b = hitTree(nx, e.y, e.r);
@@ -292,6 +375,8 @@ function update(dt) {
   T += dt;
   rotTick -= dt; if (rotTick <= 0) { rotTick = 0.6; checkRotate(); }
   if (shake > 0) shake = Math.max(0, shake - dt * 2.2);
+  tickToast(dt);
+  if (dlg) { dlgUpdate(dt); return; }
   var iv = inputVec(), moving = (iv.x || iv.y) ? 1 : 0;
   if (phase === 'day' || phase === 'morning' || phase === 'chase') {
     var sp = player.sp * (phase === 'chase' ? 1.06 : 1);
@@ -313,14 +398,14 @@ function update(dt) {
   if (phase === 'day') {
     for (var i = 0; i < picks.length; i++) {
       var p = picks[i]; if (p.got) continue;
-      if (dist2(p.x, p.y, player.x, player.y) < 1700) { p.got = true; onPick(p.t); }
+      if (d2(p.x, p.y, player.x, player.y) < 1700) { p.got = true; onPick(p.t); }
     }
   }
   if (phase === 'night') {
     howlT -= dt;
     if (howlT <= 0) { howlT = 3.4 + Math.random() * 4; howl(); shake = Math.max(shake, 0.8); }
   }
-  if (phase === 'morning' && dist2(spot.x, spot.y, player.x, player.y) < spot.r * spot.r) startFind();
+  if (phase === 'morning' && d2(spot.x, spot.y, player.x, player.y) < spot.r * spot.r) startFind();
   if (phase === 'chase') {
     chaseT += dt; dark = Math.min(1, dark + dt * 0.28);
     var mx = player.x - mons.x, my = player.y - mons.y, md = Math.hypot(mx, my);
@@ -328,8 +413,12 @@ function update(dt) {
     if (md > 1) moveEnt(mons, mx / md * msp, my / md * msp, dt);
     hbT -= dt;
     if (hbT <= 0) { hbT = Math.max(0.42, 1.05 - chaseT * 0.013); heartbeat(); }
-    if (md < 36) { endGame('被 抓 住 了', '它的手很凉。<br><br>你最后想到的是早上那具躯干 —— 右腹下面那个纹身。<br>你那时候就该跑。', A.mons); return; }
-    if (dist2(exitM.x, exitM.y, player.x, player.y) < exitM.r * exitM.r) { winGame(); return; }
+    chaseLineT -= dt;
+    if (chaseLineT <= 0 && STORY && STORY.chase && chaseLine < STORY.chase.length) {
+      chaseLineT = 4.2; toast(STORY.chase[chaseLine], 3000); chaseLine++;
+    }
+    if (md < 36) { endGame('被 抓 住 了', '', A.mons); return; }
+    if (d2(exitM.x, exitM.y, player.x, player.y) < exitM.r * exitM.r) { winGame(); return; }
   }
   var cx = player.x - W / 2, cy = player.y - H / 2;
   cam.x += (cx - cam.x) * Math.min(1, dt * 9);
@@ -342,7 +431,6 @@ function update(dt) {
     var wg = phase === 'chase' ? 0.085 : (phase === 'night' ? 0.07 : 0.045);
     try { windGain.gain.setTargetAtTime(wg, AC.currentTime, 0.8); } catch (e) {}
   }
-  tickToast(dt);
   var L = '', Rt = '';
   if (phase === 'day') { L = '蘑菇 ' + have.m + '/3　柴 ' + have.w + '/3'; Rt = '天还亮着'; }
   else if (phase === 'night') { L = '帐篷里'; Rt = '别出去'; }
@@ -352,57 +440,65 @@ function update(dt) {
   document.getElementById('hudR').textContent = Rt;
 }
 
-var TXT_NIGHT = '柴火够烧了。<br><br>天说黑就黑。林子里先是静下来 —— 静得连虫子都没有。<br><br>' +
-  '然后是叫声。<br>不像狼，不像人。像很远的地方有人用很低的声音哭。<br><br>' +
-  '你和朋友挤在帐篷里，谁也没敢掀帘子。<br>他抓着你的胳膊，说没事，说天亮了就走。<br><br>' +
-  '<span style="color:#6a7880">你后来才想起来 —— 那句话，他说的调子是平的。</span>';
-var TXT_BODY = '地上有东西。<br><br>你先看见的是几片 —— 说不出口的。<br>' +
-  '头没有了，四肢也没有了。只剩一截躯干仰在落叶里。<br><br>你腿一下软了。朋友在你身后，一声不响。';
-var TXT_MARK = '然后你看见了那个。<br><br><b>右腹下面，一个纹身。</b><br>' +
-  '你们两个去年一起纹的。<br><br>你慢慢转过身。<br>他站在你后面，一直笑着。<br>' +
-  '<span style="color:#6a7880">可他的嘴角是平的，从头到尾没动过。</span>';
-var TXT_TIRE = '你们连滚带爬回到营地。<br><br>车还在。四个轮胎全瘪了。<br>' +
-  '侧面深深插着断掉的树枝 —— 是有人一节一节拿它扎进去的。<br><br>有人比你们先到。<br><br>他离你越来越近了。<br>你只记得，来时的路在林子的另一头。';
-var TXT_WIN = '光砸在你脸上。<br><br>你一口气跑到公路上，拦下一辆过路的货车。<br>' +
-  '警察第二天才进林子 —— 什么都没找到。<br>没有躯干，没有纹身，没有那个人。<br><br>' +
-  '只剩你那辆车，四个轮胎全碎了，停在营地边。<br><br>后来你回去看过一次。<br>帐篷里，柴火被人收拾得整整齐齐。';
-
 function onPick(t) {
   if (t === 'm') have.m++; else have.w++;
-  toast(t === 'm' ? '捡到一朵蘑菇' : '捡到一根柴', 1100);
   noiseHit(900 + Math.random() * 400, 2, 0.07, 0.18, 'bandpass');
+  var total = have.m + have.w;
+  if (total === 2 || total === 4) {
+    var idx = idleN % STORY.idle.length; idleN++;
+    startDlgLines(STORY.idle[idx]);
+  } else {
+    toast(t === 'm' ? '捡到一朵蘑菇' : '捡到一根柴', 1000);
+  }
   if (have.m >= 3 && have.w >= 3) {
     setTimeout(function () {
       if (phase !== 'day') return;
-      phase = 'night'; dark = 0.7;
-      showCut('那 一 夜', TXT_NIGHT, '睡 下', A.camp, startNight);
-    }, 700);
+      startDlg('enough', function () {
+        phase = 'night'; dark = 0.7;
+        showCut('那 一 夜', '柴火够烧了。<br><br>天说黑就黑。林子里先是静下来 —— 静得连虫子都没有。<br><br>然后是叫声。', '睡 下', A.camp, startNight);
+      });
+    }, 500);
   }
 }
+function startDlgLines(lines) { if (lines && lines.length) dlg = { lines: lines, i: 0, shown: 0, onEnd: null }; }
 function startNight() {
-  phase = 'night'; dark = 0.78; shake = 1; howl(); chew();
-  toast('外面有东西在吃东西', 2800);
-  setTimeout(function () { if (phase === 'night') chew(); }, 2600);
-  setTimeout(function () {
-    if (phase !== 'night') return;
-    phase = 'morning'; dark = 0;
-    toast('第二天。去昨晚有声音的地方看看', 4200);
-  }, 7000);
+  phase = 'night'; dark = 0.78; shake = 1; howl();
+  startDlg('night', function () {
+    flash(1, 1500);
+    setTimeout(function () {
+      chew(); toast('外面有东西在吃东西', 2600);
+      setTimeout(function () { if (phase === 'night') chew(); }, 2400);
+      setTimeout(function () {
+        if (phase !== 'night') return;
+        startDlg('morning', function () { phase = 'morning'; dark = 0; toast('往昨晚有声音的地方走', 3600); });
+      }, 5200);
+    }, 900);
+  });
 }
-function startFind() { phase = 'cut'; dark = 0; showCut('什 么 东 西', TXT_BODY, '再 看 一 眼', A.body, startMark); }
-function startMark() { phase = 'cut'; showCut('那 个 印 记', TXT_MARK, '往 车 跑', A.mark, startCar); }
-function startCar() { phase = 'cut'; showCut('四 个 轮 子', TXT_TIRE, '跑', A.tire, startChase); }
+function startFind() {
+  phase = 'cut';
+  startDlg('beforeBody', function () {
+    startDlg('mark', function () {
+      showCut('什 么 东 西', '地上有东西。<br><br>你先看见的是几片 —— 说不出口的。<br>头没有了，四肢也没有了。只剩一截躯干仰在落叶里。<br><br>你腿一下软了。朋友在你身后，一声不响。', '再 看 一 眼', A.body, function () {
+        showCut('那 个 印 记', '然后你看见了那个。<br><br><b>右腹下面，一个纹身。</b><br>你们两个去年一起纹的。<br><br>你慢慢转过身。<br>他站在你后面，一直笑着。<br><span style="color:#6a7880">可他的嘴角是平的，从头到尾没动过。</span>', '往 车 跑', A.mark, function () {
+          startDlg('toCar', function () { showCut('四 个 轮 子', '车还在。四个轮胎全瘪了。<br>侧面深深插着断掉的树枝 —— 是有人一节一节拿它扎进去的。<br><br>有人比你们先到。', '跑', A.tire, startChase); });
+        });
+      });
+    });
+  });
+}
 function startChase() {
-  phase = 'chase'; chaseT = 0; dark = 0.25;
+  phase = 'chase'; chaseT = 0; dark = 0.25; chaseLine = 0; chaseLineT = 1.5;
   player.x = carM.x + 60; player.y = carM.y - 70; player.face = 1;
   friend.x = player.x - 40; friend.y = player.y + 30; friend.face = 1;
   mons.x = spot.x + 100; mons.y = spot.y + 100; mons.on = true;
   flash(0.9, 700); howl(); shake = 1;
-  toast('往林子外面跑！', 3000);
 }
 function winGame() {
   phase = 'cut'; mons.on = false; tone(400, 900, 0.12, 0.6, 'sine');
-  setTimeout(function () { endGame('你 跑 出 来 了', TXT_WIN, A.camp); }, 900);
+  startDlg('escaped', function () {
+    endGame('你 跑 出 来 了', '警察第二天进林子 —— 什么都没找到。<br>没有躯干，没有纹身，没有那个人。<br><br>后来你回去看过一次。<br>帐篷里，柴火被人收拾得整整齐齐。', A.camp);
+  });
 }
 
 function cover(im) {
@@ -423,31 +519,29 @@ function shadow(x, y, rx, ry) {
   ctx.beginPath(); ctx.ellipse(x, y, rx, ry, 0, 0, 6.2832);
   ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fill();
 }
-function drawTree(t, darkish) {
+function drawTree(t, dk) {
   var h = 46 * t.s, w = 19 * t.s, i;
   shadow(t.x, t.y + 4, t.r * 1.15, t.r * 0.4);
-  ctx.fillStyle = darkish ? '#1a1b16' : '#3b2f22';
+  ctx.fillStyle = dk ? '#1a1b16' : '#3b2f22';
   ctx.fillRect(t.x - 2.5 * t.s, t.y - 6, 5 * t.s, 12 * t.s);
   for (i = 0; i < 3; i++) {
     var yy = t.y - 4 - i * h * 0.30, ww = w * (1 - i * 0.24), hh = h * 0.6;
-    ctx.beginPath();
-    ctx.moveTo(t.x, yy - hh); ctx.lineTo(t.x - ww, yy); ctx.lineTo(t.x + ww, yy);
-    ctx.closePath();
-    ctx.fillStyle = darkish ? (i === 0 ? '#0d1417' : '#0b1114') : (i === 0 ? '#1d3328' : '#16281f');
+    ctx.beginPath(); ctx.moveTo(t.x, yy - hh); ctx.lineTo(t.x - ww, yy); ctx.lineTo(t.x + ww, yy); ctx.closePath();
+    ctx.fillStyle = dk ? (i === 0 ? '#0d1417' : '#0b1114') : (i === 0 ? '#1d3328' : '#16281f');
     ctx.fill();
   }
 }
 function drawFriend() {
-  shadow(friend.x, friend.y + 16, 15, 5.5);
-  if (!sprite(IMG.mate, friend.x, friend.y + 8, 56, friend.face)) {
+  shadow(friend.x, friend.y + 15, 14, 5);
+  if (!sprite(IMG.mate, friend.x, friend.y + 7, 50, friend.face)) {
     ctx.fillStyle = '#7d8a93'; ctx.beginPath(); ctx.arc(friend.x, friend.y - 6, 12, 0, 6.2832); ctx.fill();
     ctx.fillRect(friend.x - 9, friend.y + 4, 18, 15);
   }
 }
 function drawPlayer() {
-  shadow(player.x, player.y + 16, 17, 6);
-  if (!sprite(IMG.kang, player.x, player.y + 8, 62, player.face)) {
-    ctx.fillStyle = '#e0b53a'; ctx.beginPath(); ctx.arc(player.x, player.y - 6, 12, 0, 6.2832); ctx.fill();
+  shadow(player.x, player.y + 15, 15, 5.5);
+  if (!sprite(IMG.hero, player.x, player.y + 7, 54, player.face)) {
+    ctx.fillStyle = '#c8b28a'; ctx.beginPath(); ctx.arc(player.x, player.y - 6, 12, 0, 6.2832); ctx.fill();
     ctx.fillRect(player.x - 9, player.y + 4, 18, 15);
   }
 }
@@ -456,18 +550,11 @@ function drawMons() {
   var im = IMG.mons; if (!im || !im.complete || !im.naturalWidth) return;
   var w = 190, h = w * (im.naturalHeight / im.naturalWidth);
   var vg = ctx.createRadialGradient(mons.x, mons.y, w * 0.18, mons.x, mons.y, w * 0.78);
-  vg.addColorStop(0, 'rgba(6,10,12,0)');
-  vg.addColorStop(0.66, 'rgba(6,10,12,0.55)');
-  vg.addColorStop(1, 'rgba(6,10,12,0.98)');
-  ctx.save();
-  ctx.globalCompositeOperation = 'multiply';
-  ctx.globalAlpha = 0.96;
+  vg.addColorStop(0, 'rgba(6,10,12,0)'); vg.addColorStop(0.66, 'rgba(6,10,12,0.55)'); vg.addColorStop(1, 'rgba(6,10,12,0.98)');
+  ctx.save(); ctx.globalCompositeOperation = 'multiply'; ctx.globalAlpha = 0.96;
   ctx.drawImage(im, mons.x - w / 2, mons.y - h * 0.62, w, h);
   ctx.restore();
-  ctx.save();
-  ctx.beginPath(); ctx.arc(mons.x, mons.y, w * 0.72, 0, 6.2832);
-  ctx.fillStyle = vg; ctx.fill();
-  ctx.restore();
+  ctx.save(); ctx.beginPath(); ctx.arc(mons.x, mons.y, w * 0.72, 0, 6.2832); ctx.fillStyle = vg; ctx.fill(); ctx.restore();
 }
 function drawMini() {
   var mw = Math.min(128, W * 0.22), mh = mw * (WORLD.h / WORLD.w);
@@ -523,8 +610,8 @@ function drawWorld() {
   var g = ctx.createLinearGradient(0, 0, 0, H);
   g.addColorStop(0, '#0a1114'); g.addColorStop(1, '#05080a');
   ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
-  var darkish = (phase === 'night' || phase === 'chase');
-  if (darkish) cover(IMG.night); else cover(IMG.day);
+  var dk = (phase === 'night' || phase === 'chase');
+  if (dk) cover(IMG.night); else cover(IMG.day);
   ctx.save();
   ctx.translate(-cam.x + (Math.random() - 0.5) * shake * 15, -cam.y + (Math.random() - 0.5) * shake * 15);
   if (phase === 'morning') {
@@ -543,7 +630,7 @@ function drawWorld() {
   for (i = 0; i < trees.length; i++) {
     var t = trees[i];
     if (t.x - cam.x < -120 || t.x - cam.x > W + 120 || t.y - cam.y < -120 || t.y - cam.y > H + 120) continue;
-    drawTree(t, darkish);
+    drawTree(t, dk);
   }
   if (phase === 'day') {
     for (i = 0; i < picks.length; i++) {
@@ -567,16 +654,17 @@ function drawWorld() {
   if (started && phase !== 'end') { drawFriend(); drawPlayer(); }
   drawMons();
   ctx.restore();
-  var dk = phase === 'night' ? 0.60 : (phase === 'chase' ? (0.28 + dark * 0.34) : 0);
-  if (dk > 0) {
+  var dkv = phase === 'night' ? 0.60 : (phase === 'chase' ? (0.28 + dark * 0.34) : 0);
+  if (dkv > 0) {
     var vg = ctx.createRadialGradient(player.x - cam.x, player.y - cam.y, 42, player.x - cam.x, player.y - cam.y, Math.max(W, H) * 0.6);
-    vg.addColorStop(0, 'rgba(0,0,0,' + (dk * 0.08) + ')');
-    vg.addColorStop(0.44, 'rgba(0,0,0,' + (dk * 0.62) + ')');
-    vg.addColorStop(1, 'rgba(0,0,0,' + dk + ')');
+    vg.addColorStop(0, 'rgba(0,0,0,' + (dkv * 0.08) + ')');
+    vg.addColorStop(0.44, 'rgba(0,0,0,' + (dkv * 0.62) + ')');
+    vg.addColorStop(1, 'rgba(0,0,0,' + dkv + ')');
     ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
   }
-  if (started && phase !== 'end') { drawMini(); drawArrow(); }
-  if (stick.on) {
+  if (started && phase !== 'end' && !dlg) { drawMini(); drawArrow(); }
+  drawDlg();
+  if (stick.on && !dlg) {
     ctx.globalAlpha = 0.28; ctx.beginPath(); ctx.arc(stick.ox, stick.oy, 44, 0, 6.2832);
     ctx.strokeStyle = '#9fd8d8'; ctx.lineWidth = 1.5; ctx.stroke();
     var vx = stick.x - stick.ox, vy = stick.y - stick.oy, m = Math.hypot(vx, vy);
@@ -591,7 +679,7 @@ function loop(ts) {
   if (!last) last = ts;
   var dt = Math.min(0.05, (ts - last) / 1000); last = ts;
   if (started && phase !== 'end') update(dt);
-  else { T += dt; rotTick -= dt; if (rotTick <= 0) { rotTick = 0.6; checkRotate(); } tickToast(dt); }
+  else { T += dt; rotTick -= dt; if (rotTick <= 0) { rotTick = 0.6; checkRotate(); } tickToast(dt); if (dlg) dlgUpdate(dt); }
   if (phase === 'title' || phase === 'end') {
     cam.x = Math.max(0, Math.min(WORLD.w - W, player.x - W / 2));
     cam.y = Math.max(0, Math.min(WORLD.h - H, player.y - H / 2));
