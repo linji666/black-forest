@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>我们的一对</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:#0a0a0a;color:#f2f2f2;font-family:-apple-system,"PingFang SC",sans-serif;
+       min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+       gap:28px;padding:36px 20px}
+  h1{font-size:15px;font-weight:400;letter-spacing:.4em;color:#8a8a8a}
+  .pair{display:flex;gap:0;align-items:center}
+  .pair img{width:38vw;max-width:190px;display:block}
+  .pair img:first-child{border-radius:50% 0 0 50%}
+  .pair img:last-child{border-radius:0 50% 50% 0}
+  .one{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:8px}
+  .one img{width:26vw;max-width:130px;border-radius:50%}
+  .tip{font-size:12px;line-height:2;color:#6f6f6f;text-align:center;max-width:420px}
+  .tip b{color:#e8c46a;font-weight:400}
+  a{color:#e8c46a;text-decoration:none}
+</style>
+</head>
+<body>
+  <h1>呆 猫 与 笨 狗</h1>
+
+  <div class="pair">
+    <img src="cat.svg" alt="cat">
+    <img src="dog.svg" alt="dog">
+  </div>
+
+  <div class="one">
+    <img src="cat.svg" alt="cat">
+    <img src="dog.svg" alt="dog">
+  </div>
+
+  <p class="tip">
+    长按图片保存 · 或直接开下面两个链接<br>
+    <a href="cat.svg">cat.svg</a> &nbsp;·&nbsp; <a href="dog.svg">dog.svg</a><br>
+    <b>拼在一起，两个人是在对看的。</b>
+  </p>
+</body>
+</html>
